@@ -1,51 +1,21 @@
-# ADR-001 — [Título curto da decisão]
+# ADR 0001 - Escolha da stack tecnológica principal
 
-**Data:** [Data]  
-**Estado:** Proposto | Aceite | Substituído por ADR-XXX  
-**Decisores:** [Nome(s)]
-
----
+## Estado
+Aceite
 
 ## Contexto
-
-<!-- Qual é o problema ou situação que requer uma decisão? -->
-<!-- Que forças estão em jogo? (técnicas, de negócio, de equipa) -->
-
-[Descrever o contexto que levou a esta decisão]
-
----
+O projeto pretende implementar uma plataforma modular para captura e preservação de evidência digital OSINT. O núcleo funcional do MVP exige captura de páginas web, geração de screenshots, manipulação de ficheiros, cálculo de hashes, criação de ficheiros ZIP e execução de testes automatizados.
 
 ## Decisão
+A stack principal do projeto será composta por Python, Playwright, SQLite, JSON e SHA-256.
 
-<!-- O que foi decidido, de forma afirmativa e directa. -->
-<!-- "Decidimos usar X" — não "Poderemos considerar X". -->
-
-[Descrever a decisão tomada]
-
----
+## Justificação
+Python apresenta boa legibilidade, rapidez de desenvolvimento e um ecossistema adequado ao problema em causa. Playwright foi escolhido por suportar páginas modernas com conteúdo dinâmico. SQLite é suficiente para a persistência local prevista no MVP. JSON é adequado para o manifesto de evidência e SHA-256 é apropriado para verificação de integridade.
 
 ## Alternativas consideradas
-
-<!-- Que outras opções foram avaliadas e porquê foram rejeitadas? -->
-
-| Alternativa | Razão de rejeição |
-|------------|------------------|
-| [Alternativa A] | [Porquê não] |
-| [Alternativa B] | [Porquê não] |
-
----
+- Node.js + Playwright
+- PowerShell
+- Selenium
 
 ## Consequências
-
-<!-- O que muda com esta decisão? -->
-<!-- Que novas obrigações cria? Que problemas resolve? Que problemas pode criar? -->
-
-**Positivas:**
-- [Consequência positiva]
-
-**Negativas / trade-offs:**
-- [Trade-off aceite]
-
----
-
-*Para criar um novo ADR: copiar este ficheiro, incrementar o número, preencher e actualizar o estado.*
+A implementação será centrada numa aplicação Python modular, com núcleo CLI e possibilidade de evolução futura.
