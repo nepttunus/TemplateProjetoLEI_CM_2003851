@@ -1,29 +1,66 @@
-# Gestão de Riscos
+# Riscos do Projeto
 
-**Projecto:** [Título]  
-**Versão:** 1.0 · [Data]
+## Risco 1
+**Descrição**  
+Algumas páginas públicas podem dificultar a captura automática ou bloquear automação.
 
----
+**Probabilidade**  
+Média
 
-## Tabela de riscos
+**Impacto**  
+Médio
 
-<!-- Identificar 3 a 5 riscos reais ao projecto. -->
-<!-- Probabilidade: Alta / Média / Baixa -->
-<!-- Impacto: Alto / Médio / Baixo -->
-<!-- Mitigação: o que se faz para reduzir probabilidade ou impacto -->
+**Mitigação**  
+Selecionar fontes públicas estáveis para os testes principais e tratar falhas de captura como comportamento previsto e documentado.
 
-| ID | Risco | Probabilidade | Impacto | Mitigação |
-|----|-------|--------------|---------|-----------|
-| R01 | [ex: deriva de âmbito — o projecto cresce além do MVP] | Média | Alto | MVP contratualizado com critérios de aceitação explícitos. Qualquer extensão requer aprovação prévia do orientador. |
-| R02 | [ex: dependência de API externa não fiável] | Baixa | Alto | Identificar alternativa. Implementar camada de abstracção que permita substituição sem refactoring major. |
-| R03 | [ex: subestimação da complexidade de integração entre módulos] | Média | Médio | Integração contínua desde o início. Não deixar integração para a fase final. |
-| R04 | [Risco específico do projecto] | | | |
-| R05 | [Risco específico do projecto] | | | |
+## Risco 2
+**Descrição**  
+O MVP pode crescer demasiado e comprometer a conclusão do núcleo no tempo disponível.
 
----
+**Probabilidade**  
+Média
 
-## Histórico de actualização
+**Impacto**  
+Alto
 
-| Data | Risco | Evento | Estado |
-|------|-------|--------|--------|
-| [data] | R0X | [o que aconteceu] | Resolvido / Em curso / Escalou |
+**Mitigação**  
+Manter foco exclusivo no núcleo definido na proposta e adiar funcionalidades secundárias para depois do intercalar.
+
+## Risco 3
+**Descrição**  
+Podem surgir dificuldades iniciais na integração entre Python e Playwright.
+
+**Probabilidade**  
+Média
+
+**Impacto**  
+Médio
+
+**Mitigação**  
+Construir cedo um protótipo mínimo de captura para validar a stack antes de avançar para componentes adicionais.
+
+## Risco 4
+**Descrição**  
+A documentação pode atrasar face ao desenvolvimento e criar incoerência entre repositório, implementação e relatório.
+
+**Probabilidade**  
+Média
+
+**Impacto**  
+Alto
+
+**Mitigação**  
+Atualizar semanalmente o changelog, o README e as decisões de arquitetura, tratando a documentação como parte integrante do projeto.
+
+## Risco 5
+**Descrição**  
+Existe uma janela previsível de menor disponibilidade no final de abril e início de maio por motivo pessoal relevante já identificado.
+
+**Probabilidade**  
+Alta
+
+**Impacto**  
+Médio
+
+**Mitigação**  
+Antecipar a implementação do núcleo do MVP para antes desse período e reservar para essa fase tarefas de consolidação, revisão e documentação.
