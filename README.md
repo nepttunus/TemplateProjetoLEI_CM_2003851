@@ -50,6 +50,8 @@ criar um `evidence_bundle.zip`
 
 verificar integridade e autenticidade do conjunto
 
+
+
 ## Estrutura do projeto
 
 ```text
@@ -70,29 +72,42 @@ TemplateProjetoLEI_CM_2003851/
 ├── output/
 ├── requirements.txt
 └── README.md
-Preparação do ambiente
+
+
+
+## Preparação do ambiente
+
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python -m playwright install chromium
-Exemplos de utilização
-Captura simples
+
+
+## Exemplos de utilização
+
+# Captura simples
 python -m src.main capture https://example.org
-Captura com ator lógico associado
+# Captura com ator lógico associado
 python -m src.main capture https://example.org --actor "Carlos"
-Captura com browser visível
+
+# Captura com browser visível
 python -m src.main capture https://example.org --headed
-Verificação de uma pasta de execução
+
+# Verificação de uma pasta de execução
 python -m src.main verify output/example.org_20260321T211845Z
-Verificação de um pacote ZIP
+
+# Verificação de um pacote ZIP
 python -m src.main verify output/example.org_20260321T211845Z/evidence_bundle.zip
-Fluxo principal do sistema
+
+
+### Fluxo principal do sistema
 
 O fluxo de captura segue uma sequência modular. Primeiro a página é aberta e os artefactos principais são gerados. Depois é produzido o registo de cadeia de custódia. Em seguida é criado o manifesto com hashes e metadados. O manifesto é assinado digitalmente. São também produzidos relatórios resumidos da execução. Por fim, todo o conjunto é empacotado em ZIP e pode ser posteriormente validado pelo módulo de verificação.
 
-Artefactos gerados por execução
 
-Cada execução pode produzir os seguintes elementos
+## Artefactos gerados por execução
+
+# Cada execução pode produzir os seguintes elementos
 
 artifacts/screenshot.png
 
@@ -124,17 +139,19 @@ report.md
 
 evidence_bundle.zip
 
-Assinatura do manifesto
+
+
+## Assinatura do manifesto
 
 O projeto usa Ed25519 para assinatura digital do manifesto. Esta escolha foi adotada por ser simples, moderna, eficiente e adequada ao contexto do projeto. A assinatura é gerada para o ficheiro manifest.json e a chave pública é guardada na própria pasta de execução. Durante a verificação, se a assinatura existir, o sistema valida também a autenticidade do manifesto.
 
-Cadeia de custódia mínima
+## Cadeia de custódia mínima
 
 Cada execução produz um ficheiro chain_of_custody.json com eventos mínimos da recolha. Esses eventos incluem identificação temporal, ação realizada, ator lógico associado, alvo e detalhes relevantes. Entre os eventos atualmente registados encontram-se capture_started, capture_completed, keypair_generated, manifest_created, report_generated, manifest_signed e package_created.
 
-Relatórios por execução
+## Relatórios por execução
 
-O projeto gera dois relatórios por execução.
+# O projeto gera dois relatórios por execução.
 
 report.json contém um resumo estruturado em formato JSON
 
@@ -154,7 +171,9 @@ Adicionalmente foi realizado um teste negativo manual. Para esse efeito foi cria
 
 Foi ainda efetuada uma validação simples de desempenho através de três execuções consecutivas sobre a página https://example.org. Os tempos totais observados foram 2,499 segundos na primeira execução, 1,684 segundos na segunda e 1,302 segundos na terceira. Estes valores revelaram comportamento estável e adequado ao objetivo académico do projeto.
 
-Testes implementados
+
+
+### Testes implementados
 
 A suite cobre, entre outros, os seguintes cenários
 
@@ -178,7 +197,9 @@ teste negativo de adulteração de ZIP
 
 eventos de custódia com ator lógico
 
-Limitações atuais
+
+
+## Limitações atuais
 
 O projeto utiliza apenas Chromium
 
@@ -190,18 +211,23 @@ não existe rotação formal de chaves
 
 não foi realizada uma campanha formal de carga ou escalabilidade
 
-Repositório
+
+## Repositório
 
 Código fonte, histórico de desenvolvimento, versões e documentação encontram-se disponíveis em
 
 https://github.com/nepttunus/TemplateProjetoLEI_CM_2003851
 
-Versão de referência
+
+
+## Versão de referência
 
 A versão de referência do MVP validado corresponde à tag
 
 v1.0
 
-Próximos desenvolvimentos possíveis
+
+
+### Próximos desenvolvimentos possíveis  ### 
 
 Como evolução futura, o projeto poderá incluir uma cadeia de custódia mais rica, proteção reforçada da chave privada, rotação de chaves, relatórios mais detalhados e validações adicionais para cenários mais exigentes.
