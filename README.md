@@ -18,7 +18,7 @@ Scaffold evolutivo do MVP em Python para captura de evidência web com preserva�
 - gera um `manifest.json`
 - cria um `ZIP` com os artefactos e o manifesto
 - verifica a integridade do conjunto
-- inclui testes automáticos para hashing, verificação, artefactos HTTP/consola, HAR/trace e PDF
+- inclui testes automáticos para hashing, verificação, artefactos HTTP/consola, HAR/trace, PDF e adulteração negativa de ZIP
 
 ## Estrutura
 
@@ -37,6 +37,7 @@ TemplateProjetoLEI_CM_2003851/
 ├── requirements.txt
 └── README.md
 
+
 ## Preparação do ambiente
 
 python3 -m venv .venv
@@ -45,31 +46,33 @@ pip install -r requirements.txt
 python -m playwright install chromium
 
 
-## Exemplos de uso
+####  Exemplos de uso
 
-Capturar uma página
+
+## Capturar uma página
 python src/main.py capture https://example.org
 
-Capturar com pasta de saída definida
+## Capturar com pasta de saída definida
 python src/main.py capture https://example.org --output-dir output
 
-Capturar com browser visível
+## Capturar com browser visível
 python src/main.py capture https://example.org --headed
 
-Verificar um pacote ZIP gerado
+## Verificar um pacote ZIP gerado
 python src/main.py verify output/example.org_20260321T001321Z/evidence_bundle.zip
-
 Verificar uma pasta extraída
 python src/main.py verify output/example.org_20260321T001321Z
 
-## Fluxo do MVP
 
+## Fluxo do MVP
 capture.py abre a URL, espera pelo carregamento da página e grava os artefactos.
 hashing.py calcula o SHA-256 de cada ficheiro relevante.
 manifest.py gera um manifesto JSON com metadados de captura e de cada artefacto.
 package.py cria um ZIP final do conjunto de evidência.
 verify.py valida se todos os ficheiros listados no manifesto continuam íntegros.
-Artefactos atualmente gerados
+
+
+## Artefactos atualmente gerados
 artifacts/screenshot.png
 artifacts/page.html
 artifacts/page.pdf
@@ -85,6 +88,7 @@ evidence_bundle.zip
 ## Estrutura do manifesto
 
 O manifest.json inclui agora:
+
 versão de schema
 data/hora de geração
 diretório lógico da execução
@@ -103,6 +107,7 @@ nome do ficheiro
 ## Critério de aceitação observável
 
 Uma execução de captura é considerada bem-sucedida quando:
+
 existe uma pasta de execução com artifacts/, manifest.json e evidence_bundle.zip
 o manifest.json contém hashes SHA-256 e metadados dos artefactos gravados
 a verificação devolve sucesso para um conjunto não alterado
@@ -115,7 +120,8 @@ ainda não faz assinatura digital do manifesto
 ainda não implementa cadeia de custódia formal
 ainda não faz normalização avançada de URLs
 
-##Próximos incrementos naturais
+
+## Próximos incrementos naturais
 assinatura do manifesto
 cadeia de custódia mínima
 recolha adicional de headers e eventos relevantes
