@@ -1,32 +1,56 @@
 # Plataforma Modular de Captura e Preservação de Evidência Digital para OSINT
 
-Scaffold evolutivo do MVP em Python para captura de evidência web com preservação de integridade, assinatura do manifesto, verificação de autenticidade, cadeia de custódia mínima e relatórios resumidos por execução.
+Este repositório contém a versão final do MVP académico do projeto Plataforma Modular de Captura e Preservação de Evidência Digital para OSINT. A solução foi implementada em Python e permite capturar uma URL, recolher artefactos relevantes, gerar um manifesto com hashes, assinar digitalmente esse manifesto, registar uma cadeia de custódia mínima, produzir relatórios por execução e verificar posteriormente a integridade e a autenticidade do conjunto.
 
-## O que este MVP já faz
+A evolução do trabalho foi feita por incrementos sucessivos até à versão estabilizada do MVP. O estado validado do projeto encontra-se refletido na tag `v1.0`.
 
-- recebe uma URL por linha de comandos
-- abre a página com Playwright
-- guarda uma screenshot em PNG
-- guarda o HTML final da página
-- guarda um PDF da página capturada
-- guarda metadados básicos da captura
-- guarda metadados HTTP da resposta principal
-- guarda logs de consola da página
-- guarda um ficheiro HAR de rede
-- guarda um trace ZIP do browser
-- calcula hashes SHA-256 dos artefactos
-- gera um `manifest.json`
-- assina o manifesto em `manifest.sig`
-- gera um par de chaves Ed25519 por execução e guarda a chave pública dentro da pasta da execução, em `keys/public_key.pem`
-- gera um ficheiro `chain_of_custody.json` com eventos mínimos da cadeia de custódia
-- aceita um ator lógico com `--actor` para registo da captura
-- gera `report.json` e `report.md` com resumo da execução
-- cria um `ZIP` com os artefactos, manifesto, assinatura, chave pública, registo de custódia e relatórios
-- verifica a integridade do conjunto
-- verifica a assinatura do manifesto quando existir
-- inclui testes automáticos para hashing, verificação, artefactos HTTP/consola, HAR/trace, PDF, adulteração negativa de ZIP, assinatura do manifesto, cadeia de custódia, relatórios e eventos com ator
+## Estado atual do projeto
 
-## Estrutura
+O MVP encontra-se concluído e validado em ambiente local e em ambiente limpo. A validação final incluiu clonagem do repositório, criação de ambiente virtual, instalação das dependências, instalação do Chromium do Playwright, execução da suite de testes automáticos, captura de uma URL de referência e verificação do pacote final produzido.
+
+A suite de testes inclui atualmente 14 testes automáticos com sucesso.
+
+## Funcionalidades implementadas
+
+O sistema permite
+
+capturar uma página web a partir de uma URL
+
+gerar screenshot em PNG
+
+guardar o HTML final da página
+
+exportar a página para PDF
+
+recolher metadados básicos da captura
+
+recolher metadados HTTP da resposta principal
+
+recolher logs de consola
+
+gerar um ficheiro HAR de rede
+
+gerar um trace ZIP do browser
+
+calcular hashes SHA 256 dos ficheiros relevantes
+
+gerar um `manifest.json`
+
+assinar o manifesto em `manifest.sig`
+
+gerar uma chave pública por execução em `keys/public_key.pem`
+
+gerar um `chain_of_custody.json` com eventos mínimos da execução
+
+aceitar um ator lógico com `--actor`
+
+gerar `report.json` e `report.md` com resumo da execução
+
+criar um `evidence_bundle.zip`
+
+verificar integridade e autenticidade do conjunto
+
+## Estrutura do projeto
 
 ```text
 TemplateProjetoLEI_CM_2003851/
@@ -42,159 +66,142 @@ TemplateProjetoLEI_CM_2003851/
 │   ├── signature.py
 │   └── verify.py
 ├── tests/
+├── docs/
 ├── output/
 ├── requirements.txt
 └── README.md
-
-## Preparação do ambiente
+Preparação do ambiente
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python -m playwright install chromium
-
-
-##### Exemplos de uso
-
-
-## Capturar uma página
+Exemplos de utilização
+Captura simples
 python -m src.main capture https://example.org
-## Capturar com pasta de saída definida
-python -m src.main capture https://example.org --output-dir output
-## Capturar com browser visível
-python -m src.main capture https://example.org --headed
-## Capturar indicando o ator lógico
+Captura com ator lógico associado
 python -m src.main capture https://example.org --actor "Carlos"
-## Verificar um pacote ZIP gerado
-python -m src.main verify output/example.org_20260321T001321Z/evidence_bundle.zip
-## Verificar uma pasta extraída
-python -m src.main verify output/example.org_20260321T001321Z
+Captura com browser visível
+python -m src.main capture https://example.org --headed
+Verificação de uma pasta de execução
+python -m src.main verify output/example.org_20260321T211845Z
+Verificação de um pacote ZIP
+python -m src.main verify output/example.org_20260321T211845Z/evidence_bundle.zip
+Fluxo principal do sistema
 
+O fluxo de captura segue uma sequência modular. Primeiro a página é aberta e os artefactos principais são gerados. Depois é produzido o registo de cadeia de custódia. Em seguida é criado o manifesto com hashes e metadados. O manifesto é assinado digitalmente. São também produzidos relatórios resumidos da execução. Por fim, todo o conjunto é empacotado em ZIP e pode ser posteriormente validado pelo módulo de verificação.
 
-## Fluxo do MVP
+Artefactos gerados por execução
 
-capture.py abre a URL, espera pelo carregamento da página e grava os artefactos.
-hashing.py calcula o SHA-256 de cada ficheiro relevante.
-custody.py gera um registo mínimo de cadeia de custódia da execução.
-manifest.py gera um manifesto JSON com metadados de captura e de cada artefacto.
-signature.py garante a existência do par de chaves, assina o manifesto e disponibiliza validação de assinatura.
-reporting.py gera relatórios resumidos em JSON e Markdown.
-package.py cria um ZIP final do conjunto de evidência.
-verify.py valida se todos os ficheiros listados no manifesto continuam íntegros e, quando existir assinatura, valida também a autenticidade do manifesto.
+Cada execução pode produzir os seguintes elementos
 
-
-## Artefactos atualmente gerados
 artifacts/screenshot.png
+
 artifacts/page.html
+
 artifacts/page.pdf
+
 artifacts/capture_metadata.json
+
 artifacts/http_metadata.json
+
 artifacts/console_logs.json
+
 artifacts/network.har
+
 artifacts/trace.zip
+
 chain_of_custody.json
+
 manifest.json
+
 manifest.sig
-keys/public_key.pem dentro da pasta da execução
+
+keys/public_key.pem
+
 report.json
+
 report.md
+
 evidence_bundle.zip
 
+Assinatura do manifesto
 
-### Estrutura do manifesto
+O projeto usa Ed25519 para assinatura digital do manifesto. Esta escolha foi adotada por ser simples, moderna, eficiente e adequada ao contexto do projeto. A assinatura é gerada para o ficheiro manifest.json e a chave pública é guardada na própria pasta de execução. Durante a verificação, se a assinatura existir, o sistema valida também a autenticidade do manifesto.
 
-O manifest.json inclui agora:
-
-versão de schema
-data/hora de geração
-diretório lógico da execução
-metadados da captura
-resumo com número de ficheiros e tamanho total
-lista de ficheiros com:
-caminho relativo
-SHA-256
-tamanho em bytes
-timestamp de modificação
-tipo lógico de artefacto
-media type
-nome do ficheiro
-
-
-## Assinatura do manifesto
-
-O projeto usa assinatura digital Ed25519 para reforçar a autenticidade do manifest.json.
-
-Em cada captura:
-
-o manifesto é assinado e guardado em manifest.sig
-a chave pública é guardada dentro da pasta da execução, em keys/public_key.pem
-a chave privada é usada localmente para assinar e não deve ser distribuída no pacote final de evidência
-
-Durante a verificação:
-
-se existir manifest.sig, a verificação valida a assinatura do manifesto
-se a assinatura não corresponder ao conteúdo atual do manifesto, a verificação falha
-se a chave pública estiver em falta, a verificação também falha
 Cadeia de custódia mínima
 
-O projeto gera um ficheiro chain_of_custody.json por execução para registar eventos essenciais da recolha de evidência.
+Cada execução produz um ficheiro chain_of_custody.json com eventos mínimos da recolha. Esses eventos incluem identificação temporal, ação realizada, ator lógico associado, alvo e detalhes relevantes. Entre os eventos atualmente registados encontram-se capture_started, capture_completed, keypair_generated, manifest_created, report_generated, manifest_signed e package_created.
 
-Cada evento inclui:
-
-event_id
-timestamp
-action
-actor
-target
-details
-
-Exemplos de ações atualmente registadas:
-
-capture_started
-capture_completed
-keypair_generated
-manifest_created
-report_generated
-manifest_signed
-package_created
 Relatórios por execução
 
-O projeto gera dois relatórios resumidos por execução:
+O projeto gera dois relatórios por execução.
 
-report.json com resumo estruturado
-report.md com resumo legível em Markdown
+report.json contém um resumo estruturado em formato JSON
 
-O resumo inclui:
+report.md contém um resumo legível em Markdown
 
-identificação da execução
-URL original e URL final
-título da página
-status HTTP
-timestamps de início e fim
-lista de artefactos incluídos
-referência ao manifesto e à assinatura
-Critério de aceitação observável
+Estes relatórios registam a identificação da execução, a URL original, a URL final, o título da página, o estado HTTP e a lista de artefactos gerados.
 
-Uma execução de captura é considerada bem-sucedida quando:
+Validação do projeto
 
-existe uma pasta de execução com artifacts/, chain_of_custody.json, manifest.json, manifest.sig, keys/public_key.pem, report.json, report.md e evidence_bundle.zip
-o manifest.json contém hashes SHA-256 e metadados dos artefactos gravados
-existe um chain_of_custody.json com eventos mínimos da execução
-a assinatura do manifesto é validada com sucesso quando o conteúdo não foi alterado
-a verificação devolve sucesso para um conjunto não alterado
-a verificação devolve falha se um artefacto for alterado depois da captura
-a verificação devolve falha se o manifesto assinado for alterado
+A versão final do MVP foi validada em ambiente limpo. O repositório foi clonado para uma pasta nova, foi criado um ambiente virtual Python, instalaram-se as dependências previstas, foi instalado o browser Chromium do Playwright, executou-se a suite de testes e realizou-se uma captura integral da página de referência https://example.org com o ator lógico Carlos.
 
-## Limitações atuais do MVP
-apenas usa Chromium
-a gestão de chaves ainda é local e simplificada
-a cadeia de custódia ainda é mínima e não cobre workflows multiutilizador completos
-ainda não faz normalização avançada de URLs
-ainda não implementa rotação, proteção forte ou armazenamento seguro da chave privada
+A suite automatizada terminou com sucesso, totalizando 14 testes passados.
 
-## Próximos incrementos naturais
-cadeia de custódia com múltiplos atores e eventos adicionais
-proteção segura da chave privada
-rotação e gestão de chaves
-recolha adicional de headers e eventos relevantes
-relatórios mais detalhados com resumo técnico e executivo
-testes automáticos adicionais para cenários de erro
+Foi também validado o pacote ZIP final gerado, tendo a verificação devolvido sucesso com 12 ficheiros verificados e sem erros.
+
+Adicionalmente foi realizado um teste negativo manual. Para esse efeito foi criada uma cópia de uma execução válida e alterado o ficheiro artifacts/page.html. Após essa modificação, a verificação devolveu erro e identificou explicitamente a mensagem Hash inválido: artifacts/page.html.
+
+Foi ainda efetuada uma validação simples de desempenho através de três execuções consecutivas sobre a página https://example.org. Os tempos totais observados foram 2,499 segundos na primeira execução, 1,684 segundos na segunda e 1,302 segundos na terceira. Estes valores revelaram comportamento estável e adequado ao objetivo académico do projeto.
+
+Testes implementados
+
+A suite cobre, entre outros, os seguintes cenários
+
+captura de artefactos
+
+geração de manifesto
+
+assinatura e verificação do manifesto
+
+cadeia de custódia
+
+relatórios por execução
+
+exportação PDF
+
+recolha de console logs e metadados HTTP
+
+HAR e trace
+
+teste negativo de adulteração de ZIP
+
+eventos de custódia com ator lógico
+
+Limitações atuais
+
+O projeto utiliza apenas Chromium
+
+a gestão de chaves é local e simplificada
+
+a cadeia de custódia é mínima e não cobre workflows multiutilizador completos
+
+não existe rotação formal de chaves
+
+não foi realizada uma campanha formal de carga ou escalabilidade
+
+Repositório
+
+Código fonte, histórico de desenvolvimento, versões e documentação encontram-se disponíveis em
+
+https://github.com/nepttunus/TemplateProjetoLEI_CM_2003851
+
+Versão de referência
+
+A versão de referência do MVP validado corresponde à tag
+
+v1.0
+
+Próximos desenvolvimentos possíveis
+
+Como evolução futura, o projeto poderá incluir uma cadeia de custódia mais rica, proteção reforçada da chave privada, rotação de chaves, relatórios mais detalhados e validações adicionais para cenários mais exigentes.
