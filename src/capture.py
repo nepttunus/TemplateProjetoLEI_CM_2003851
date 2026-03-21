@@ -19,6 +19,8 @@ class CaptureResult:
     metadata_path: Path
     http_metadata_path: Path
     console_logs_path: Path
+    har_path: Path
+    trace_path: Path
     capture_metadata: dict
 
 
@@ -49,13 +51,22 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
     metadata_path = artifacts_dir / "capture_metadata.json"
     http_metadata_path = artifacts_dir / "http_metadata.json"
     console_logs_path = artifacts_dir / "console_logs.json"
+    har_path = artifacts_dir / "network.har"
+    trace_path = artifacts_dir / "trace.zip"
 
     capture_started_at = datetime.now(timezone.utc).isoformat()
     console_logs: list[dict] = []
 
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=headless)
-        context = browser.new_context(ignore_https_errors=True)
+        context = browser.new_context(
+            ignore_https_errors=True,
+            record_har_path=str(har_path),
+            record_har_mode="full",
+        )
+
+        context.tracing.start(screenshots=True, snapshots=True, sources=True)
+
         page = context.new_page()
 
         def handle_console(msg) -> None:
@@ -114,6 +125,8 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
             "timeout_ms": timeout_ms,
             "http_metadata_file": "artifacts/http_metadata.json",
             "console_logs_file": "artifacts/console_logs.json",
+            "har_file": "artifacts/network.har",
+            "trace_file": "artifacts/trace.zip",
         }
 
         metadata_path.write_text(
@@ -121,6 +134,7 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
             encoding="utf-8",
         )
 
+        context.tracing.stop(path=str(trace_path))
         context.close()
         browser.close()
 
@@ -132,6 +146,7 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
         metadata_path=metadata_path,
         http_metadata_path=http_metadata_path,
         console_logs_path=console_logs_path,
+        har_path=har_path,
+        trace_path=trace_path,
         capture_metadata=capture_metadata,
     )
-
