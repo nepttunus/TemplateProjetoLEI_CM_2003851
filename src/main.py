@@ -5,6 +5,7 @@ from pathlib import Path
 
 from src.capture import capture_url
 from src.cli import build_parser
+from src.custody import write_chain_of_custody
 from src.manifest import build_manifest
 from src.package import create_zip_archive
 from src.signature import ensure_keypair, sign_manifest
@@ -19,10 +20,17 @@ def cmd_capture(args):
         headless=not getattr(args, "headed", False),
     )
 
-    manifest, manifest_path = build_manifest(result.run_dir, result.capture_metadata)
-
     keys_dir = result.run_dir / "keys"
     private_key_path, public_key_path = ensure_keypair(keys_dir)
+
+    custody_path = write_chain_of_custody(
+        result.run_dir,
+        result.capture_metadata,
+        actor="system",
+    )
+
+    manifest, manifest_path = build_manifest(result.run_dir, result.capture_metadata)
+
     signature_path = sign_manifest(
         manifest_path,
         private_key_path,
@@ -37,6 +45,7 @@ def cmd_capture(args):
         "manifest": str(manifest_path),
         "signature": str(signature_path),
         "public_key": str(public_key_path),
+        "chain_of_custody": str(custody_path),
         "zip": str(zip_path),
         "files": [item["path"] for item in manifest["files"]],
     }

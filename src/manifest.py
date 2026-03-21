@@ -6,9 +6,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 try:
-    from hashing import sha256_file
-except ModuleNotFoundError:
     from src.hashing import sha256_file
+except ModuleNotFoundError:
+    from hashing import sha256_file
 
 
 MANIFEST_FILENAME = "manifest.json"
@@ -24,11 +24,14 @@ def iso_utc_from_timestamp(timestamp: float) -> str:
 
 def infer_artifact_type(file_path: Path) -> str:
     name = file_path.name.lower()
+    rel = file_path.as_posix().lower()
 
     if name == "screenshot.png":
         return "screenshot"
     if name == "page.html":
         return "page-html"
+    if name == "page.pdf":
+        return "page-pdf"
     if name == "capture_metadata.json":
         return "capture-metadata"
     if name == "http_metadata.json":
@@ -39,10 +42,27 @@ def infer_artifact_type(file_path: Path) -> str:
         return "network-har"
     if name == "trace.zip":
         return "browser-trace"
-    if name.endswith(".pdf"):
-        return "page-pdf"
+    if name == "chain_of_custody.json":
+        return "chain-of-custody"
+    if name == "public_key.pem":
+        return "public-key"
 
     return "artifact"
+
+
+def should_include_in_manifest(run_dir: Path, file_path: Path) -> bool:
+    rel = relative_to_run(run_dir, file_path)
+
+    if rel in {"manifest.json", "manifest.sig", "evidence_bundle.zip"}:
+        return False
+
+    if rel.endswith("private_key.pem"):
+        return False
+
+    if "__pycache__" in file_path.parts:
+        return False
+
+    return True
 
 
 def build_file_entry(run_dir: Path, file_path: Path) -> dict:
@@ -62,11 +82,10 @@ def build_file_entry(run_dir: Path, file_path: Path) -> dict:
 
 def build_manifest(run_dir: str | Path, capture_metadata: dict) -> tuple[dict, Path]:
     run_dir = Path(run_dir)
-    artifacts_dir = run_dir / "artifacts"
 
     files = []
-    for file_path in sorted(artifacts_dir.rglob("*")):
-        if file_path.is_file():
+    for file_path in sorted(run_dir.rglob("*")):
+        if file_path.is_file() and should_include_in_manifest(run_dir, file_path):
             files.append(build_file_entry(run_dir, file_path))
 
     manifest = {
