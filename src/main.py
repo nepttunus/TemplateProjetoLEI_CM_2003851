@@ -8,6 +8,7 @@ from src.cli import build_parser
 from src.custody import write_chain_of_custody
 from src.manifest import build_manifest
 from src.package import create_zip_archive
+from src.reporting import write_report_json, write_report_markdown
 from src.signature import ensure_keypair, sign_manifest
 from src.verify import verify_path
 
@@ -29,6 +30,19 @@ def cmd_capture(args):
         actor="system",
     )
 
+    provisional_manifest, _ = build_manifest(result.run_dir, result.capture_metadata)
+
+    report_json_path = write_report_json(
+        result.run_dir,
+        result.capture_metadata,
+        provisional_manifest,
+    )
+    report_md_path = write_report_markdown(
+        result.run_dir,
+        result.capture_metadata,
+        provisional_manifest,
+    )
+
     manifest, manifest_path = build_manifest(result.run_dir, result.capture_metadata)
 
     signature_path = sign_manifest(
@@ -46,6 +60,8 @@ def cmd_capture(args):
         "signature": str(signature_path),
         "public_key": str(public_key_path),
         "chain_of_custody": str(custody_path),
+        "report_json": str(report_json_path),
+        "report_md": str(report_md_path),
         "zip": str(zip_path),
         "files": [item["path"] for item in manifest["files"]],
     }

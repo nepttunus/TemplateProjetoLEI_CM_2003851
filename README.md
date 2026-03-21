@@ -1,6 +1,6 @@
 # Plataforma Modular de Captura e Preservação de Evidência Digital para OSINT
 
-Scaffold evolutivo do MVP em Python para captura de evidência web com preservação de integridade, assinatura do manifesto e verificação de autenticidade.
+Scaffold evolutivo do MVP em Python para captura de evidência web com preservação de integridade, assinatura do manifesto, verificação de autenticidade e cadeia de custódia mínima.
 
 ## O que este MVP já faz
 
@@ -18,10 +18,11 @@ Scaffold evolutivo do MVP em Python para captura de evidência web com preserva�
 - gera um `manifest.json`
 - assina o manifesto em `manifest.sig`
 - gera um par de chaves Ed25519 por execução e guarda a chave pública dentro da pasta da execução, em `keys/public_key.pem`
-- cria um `ZIP` com os artefactos, manifesto, assinatura e chave pública
+- gera um ficheiro `chain_of_custody.json` com eventos mínimos da cadeia de custódia
+- cria um `ZIP` com os artefactos, manifesto, assinatura, chave pública e registo de custódia
 - verifica a integridade do conjunto
 - verifica a assinatura do manifesto quando existir
-- inclui testes automáticos para hashing, verificação, artefactos HTTP/consola, HAR/trace, PDF, adulteração negativa de ZIP e assinatura do manifesto
+- inclui testes automáticos para hashing, verificação, artefactos HTTP/consola, HAR/trace, PDF, adulteração negativa de ZIP, assinatura do manifesto e cadeia de custódia
 
 ## Estrutura
 
@@ -31,6 +32,7 @@ TemplateProjetoLEI_CM_2003851/
 │   ├── main.py
 │   ├── cli.py
 │   ├── capture.py
+│   ├── custody.py
 │   ├── hashing.py
 │   ├── manifest.py
 │   ├── package.py
@@ -59,6 +61,7 @@ python -m src.main verify output/example.org_20260321T001321Z
 Fluxo do MVP
 capture.py abre a URL, espera pelo carregamento da página e grava os artefactos.
 hashing.py calcula o SHA-256 de cada ficheiro relevante.
+custody.py gera um registo mínimo de cadeia de custódia da execução.
 manifest.py gera um manifesto JSON com metadados de captura e de cada artefacto.
 signature.py garante a existência do par de chaves, assina o manifesto e disponibiliza validação de assinatura.
 package.py cria um ZIP final do conjunto de evidência.
@@ -72,6 +75,7 @@ artifacts/http_metadata.json
 artifacts/console_logs.json
 artifacts/network.har
 artifacts/trace.zip
+chain_of_custody.json
 manifest.json
 manifest.sig
 keys/public_key.pem dentro da pasta da execução
@@ -108,12 +112,31 @@ Durante a verificação:
 se existir manifest.sig, a verificação valida a assinatura do manifesto
 se a assinatura não corresponder ao conteúdo atual do manifesto, a verificação falha
 se a chave pública estiver em falta, a verificação também falha
+Cadeia de custódia mínima
+
+O projeto gera um ficheiro chain_of_custody.json por execução para registar eventos essenciais da recolha de evidência.
+
+Cada evento inclui:
+
+event_id
+timestamp
+action
+actor
+target
+details
+
+Exemplos de ações atualmente registadas:
+
+capture_started
+capture_completed
+keypair_generated
 Critério de aceitação observável
 
 Uma execução de captura é considerada bem-sucedida quando:
 
-existe uma pasta de execução com artifacts/, manifest.json, manifest.sig, keys/public_key.pem e evidence_bundle.zip
+existe uma pasta de execução com artifacts/, chain_of_custody.json, manifest.json, manifest.sig, keys/public_key.pem e evidence_bundle.zip
 o manifest.json contém hashes SHA-256 e metadados dos artefactos gravados
+existe um chain_of_custody.json com eventos mínimos da execução
 a assinatura do manifesto é validada com sucesso quando o conteúdo não foi alterado
 a verificação devolve sucesso para um conjunto não alterado
 a verificação devolve falha se um artefacto for alterado depois da captura
@@ -121,11 +144,11 @@ a verificação devolve falha se o manifesto assinado for alterado
 Limitações atuais do MVP
 apenas usa Chromium
 a gestão de chaves ainda é local e simplificada
-ainda não implementa cadeia de custódia formal
+a cadeia de custódia ainda é mínima e não cobre workflows multiutilizador
 ainda não faz normalização avançada de URLs
 ainda não implementa rotação, proteção forte ou armazenamento seguro da chave privada
 Próximos incrementos naturais
-cadeia de custódia mínima
+cadeia de custódia com múltiplos atores e eventos adicionais
 proteção segura da chave privada
 rotação e gestão de chaves
 recolha adicional de headers e eventos relevantes

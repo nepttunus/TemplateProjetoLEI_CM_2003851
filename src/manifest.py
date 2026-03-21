@@ -46,6 +46,10 @@ def infer_artifact_type(file_path: Path) -> str:
         return "chain-of-custody"
     if name == "public_key.pem":
         return "public-key"
+    if name == "report.json":
+        return "execution-report-json"
+    if name == "report.md":
+        return "execution-report-markdown"
 
     return "artifact"
 
