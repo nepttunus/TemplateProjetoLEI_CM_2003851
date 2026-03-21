@@ -17,6 +17,8 @@ class CaptureResult:
     screenshot_path: Path
     html_path: Path
     metadata_path: Path
+    http_metadata_path: Path
+    console_logs_path: Path
     capture_metadata: dict
 
 
@@ -45,13 +47,27 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
     screenshot_path = artifacts_dir / "screenshot.png"
     html_path = artifacts_dir / "page.html"
     metadata_path = artifacts_dir / "capture_metadata.json"
+    http_metadata_path = artifacts_dir / "http_metadata.json"
+    console_logs_path = artifacts_dir / "console_logs.json"
 
     capture_started_at = datetime.now(timezone.utc).isoformat()
+    console_logs: list[dict] = []
 
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=headless)
         context = browser.new_context(ignore_https_errors=True)
         page = context.new_page()
+
+        def handle_console(msg) -> None:
+            console_logs.append(
+                {
+                    "type": getattr(msg, "type", None),
+                    "text": getattr(msg, "text", None),
+                    "location": getattr(msg, "location", None),
+                }
+            )
+
+        page.on("console", handle_console)
 
         response = page.goto(url, wait_until="networkidle", timeout=timeout_ms)
         page.screenshot(path=str(screenshot_path), full_page=True)
@@ -59,6 +75,32 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
 
         capture_finished_at = datetime.now(timezone.utc).isoformat()
         title = page.title()
+
+        response_headers = {}
+        if response:
+            try:
+                response_headers = response.all_headers()
+            except Exception:
+                response_headers = {}
+
+        http_metadata = {
+            "source_url": url,
+            "final_url": page.url,
+            "page_title": title,
+            "http_status": response.status if response else None,
+            "response_headers": response_headers,
+            "captured_at": capture_finished_at,
+        }
+
+        http_metadata_path.write_text(
+            json.dumps(http_metadata, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+        console_logs_path.write_text(
+            json.dumps(console_logs, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
 
         capture_metadata = {
             "source_url": url,
@@ -70,6 +112,8 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
             "browser": "chromium",
             "headless": headless,
             "timeout_ms": timeout_ms,
+            "http_metadata_file": "artifacts/http_metadata.json",
+            "console_logs_file": "artifacts/console_logs.json",
         }
 
         metadata_path.write_text(
@@ -86,5 +130,8 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
         screenshot_path=screenshot_path,
         html_path=html_path,
         metadata_path=metadata_path,
+        http_metadata_path=http_metadata_path,
+        console_logs_path=console_logs_path,
         capture_metadata=capture_metadata,
     )
+
