@@ -16,6 +16,7 @@ class CaptureResult:
     artifacts_dir: Path
     screenshot_path: Path
     html_path: Path
+    pdf_path: Path
     metadata_path: Path
     http_metadata_path: Path
     console_logs_path: Path
@@ -48,6 +49,7 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
 
     screenshot_path = artifacts_dir / "screenshot.png"
     html_path = artifacts_dir / "page.html"
+    pdf_path = artifacts_dir / "page.pdf"
     metadata_path = artifacts_dir / "capture_metadata.json"
     http_metadata_path = artifacts_dir / "http_metadata.json"
     console_logs_path = artifacts_dir / "console_logs.json"
@@ -83,6 +85,14 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
         response = page.goto(url, wait_until="networkidle", timeout=timeout_ms)
         page.screenshot(path=str(screenshot_path), full_page=True)
         html_path.write_text(page.content(), encoding="utf-8")
+
+        page.emulate_media(media="screen")
+        page.pdf(
+            path=str(pdf_path),
+            format="A4",
+            print_background=True,
+            prefer_css_page_size=True,
+        )
 
         capture_finished_at = datetime.now(timezone.utc).isoformat()
         title = page.title()
@@ -123,6 +133,7 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
             "browser": "chromium",
             "headless": headless,
             "timeout_ms": timeout_ms,
+            "pdf_file": "artifacts/page.pdf",
             "http_metadata_file": "artifacts/http_metadata.json",
             "console_logs_file": "artifacts/console_logs.json",
             "har_file": "artifacts/network.har",
@@ -143,6 +154,7 @@ def capture_url(url: str, output_dir: str | Path, timeout_ms: int = 30000, headl
         artifacts_dir=artifacts_dir,
         screenshot_path=screenshot_path,
         html_path=html_path,
+        pdf_path=pdf_path,
         metadata_path=metadata_path,
         http_metadata_path=http_metadata_path,
         console_logs_path=console_logs_path,
