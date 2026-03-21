@@ -24,12 +24,6 @@ def cmd_capture(args):
     keys_dir = result.run_dir / "keys"
     private_key_path, public_key_path = ensure_keypair(keys_dir)
 
-    custody_path = write_chain_of_custody(
-        result.run_dir,
-        result.capture_metadata,
-        actor="system",
-    )
-
     provisional_manifest, _ = build_manifest(result.run_dir, result.capture_metadata)
 
     report_json_path = write_report_json(
@@ -41,6 +35,39 @@ def cmd_capture(args):
         result.run_dir,
         result.capture_metadata,
         provisional_manifest,
+    )
+
+    custody_path = write_chain_of_custody(
+        result.run_dir,
+        result.capture_metadata,
+        actor=args.actor,
+        extra_events=[
+            {
+                "action": "keypair_generated",
+                "target": "keys/public_key.pem",
+                "details": {"algorithm": "Ed25519"},
+            },
+            {
+                "action": "manifest_created",
+                "target": "manifest.json",
+                "details": {"schema_version": "0.2.0"},
+            },
+            {
+                "action": "report_generated",
+                "target": "report.json",
+                "details": {"formats": ["json", "markdown"]},
+            },
+            {
+                "action": "manifest_signed",
+                "target": "manifest.sig",
+                "details": {"algorithm": "Ed25519"},
+            },
+            {
+                "action": "package_created",
+                "target": "evidence_bundle.zip",
+                "details": {"format": "zip"},
+            },
+        ],
     )
 
     manifest, manifest_path = build_manifest(result.run_dir, result.capture_metadata)
@@ -63,6 +90,7 @@ def cmd_capture(args):
         "report_json": str(report_json_path),
         "report_md": str(report_md_path),
         "zip": str(zip_path),
+        "actor": args.actor,
         "files": [item["path"] for item in manifest["files"]],
     }
     print(json.dumps(payload, indent=2, ensure_ascii=False))

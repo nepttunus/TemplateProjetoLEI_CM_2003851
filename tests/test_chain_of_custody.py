@@ -23,7 +23,20 @@ def test_chain_of_custody_is_created_and_listed_in_manifest(tmp_path):
     }
 
     ensure_keypair(run_dir / "keys")
-    chain_path = write_chain_of_custody(run_dir, capture_metadata, actor="tester")
+
+    chain_path = write_chain_of_custody(
+        run_dir,
+        capture_metadata,
+        actor="tester",
+        extra_events=[
+            {
+                "action": "keypair_generated",
+                "target": "keys/public_key.pem",
+                "details": {"algorithm": "Ed25519"},
+            }
+        ],
+    )
+
     manifest, manifest_path = build_manifest(run_dir, capture_metadata)
 
     assert chain_path.exists()

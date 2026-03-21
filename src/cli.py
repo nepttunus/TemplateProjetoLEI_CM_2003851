@@ -31,6 +31,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Abre o browser em modo visível",
     )
+    capture_parser.add_argument(
+        "--actor",
+        default="system",
+        help="Identificador lógico do ator responsável pela captura",
+    )
 
     verify_parser = subparsers.add_parser(
         "verify",

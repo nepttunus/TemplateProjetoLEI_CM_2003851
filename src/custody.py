@@ -31,6 +31,7 @@ def write_chain_of_custody(
     run_dir: str | Path,
     capture_metadata: dict,
     actor: str = "system",
+    extra_events: list[dict] | None = None,
 ) -> Path:
     run_dir = Path(run_dir)
     chain_path = run_dir / "chain_of_custody.json"
@@ -56,13 +57,18 @@ def write_chain_of_custody(
             },
             timestamp=capture_metadata.get("capture_finished_at"),
         ),
-        build_event(
-            action="keypair_generated",
-            actor=actor,
-            target="keys/public_key.pem",
-            details={"algorithm": "Ed25519"},
-        ),
     ]
+
+    for event in extra_events or []:
+        events.append(
+            build_event(
+                action=event["action"],
+                actor=actor,
+                target=event["target"],
+                details=event.get("details", {}),
+                timestamp=event.get("timestamp"),
+            )
+        )
 
     payload = {
         "schema_version": "0.1.0",
