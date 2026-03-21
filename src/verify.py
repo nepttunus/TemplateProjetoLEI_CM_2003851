@@ -1,68 +1,81 @@
 from __future__ import annotations
 
 import json
+import shutil
 import tempfile
-from dataclasses import dataclass, field
+import zipfile
+from dataclasses import dataclass
 from pathlib import Path
-from zipfile import ZipFile
 
-try:
-    from hashing import sha256_file
-except ModuleNotFoundError:
-    from src.hashing import sha256_file
+from src.hashing import sha256_file
+from src.signature import verify_manifest_signature
 
 
 @dataclass
-class VerificationResult:
+class VerifyResult:
     ok: bool
     checked_files: int
-    errors: list[str] = field(default_factory=list)
+    errors: list[str]
 
 
-def load_manifest(run_dir: Path) -> dict:
+def verify_run_directory(run_dir: Path) -> VerifyResult:
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifesto não encontrado: {manifest_path}")
-    return json.loads(manifest_path.read_text(encoding="utf-8"))
+        return VerifyResult(False, 0, ["Manifest não encontrado"])
 
-
-def verify_run_directory(run_dir: str | Path) -> VerificationResult:
-    run_dir = Path(run_dir)
-    manifest = load_manifest(run_dir)
-
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     errors: list[str] = []
-    checked = 0
+    checked_files = 0
 
     for entry in manifest.get("files", []):
-        expected_path = run_dir / entry["path"]
-        expected_hash = entry["sha256"]
-
-        if not expected_path.exists():
+        file_path = run_dir / entry["path"]
+        if not file_path.exists():
             errors.append(f"Ficheiro em falta: {entry['path']}")
             continue
 
-        current_hash = sha256_file(expected_path)
-        checked += 1
+        current_hash = sha256_file(file_path)
+        if current_hash != entry["sha256"]:
+            errors.append(f"Hash inválido: {entry['path']}")
+        checked_files += 1
 
-        if current_hash != expected_hash:
-            errors.append(
-                f"Hash inválido em {entry['path']}: esperado {expected_hash}, obtido {current_hash}"
-            )
+    signature_path = run_dir / "manifest.sig"
+    public_key_path = run_dir / "keys" / "public_key.pem"
 
-    return VerificationResult(ok=not errors, checked_files=checked, errors=errors)
+    if signature_path.exists():
+        if not public_key_path.exists():
+            errors.append("Chave pública em falta para validar assinatura")
+        else:
+            if not verify_manifest_signature(manifest_path, signature_path, public_key_path):
+                errors.append("Assinatura do manifesto inválida")
+
+    return VerifyResult(len(errors) == 0, checked_files, errors)
 
 
-def verify_path(path: str | Path) -> VerificationResult:
-    path = Path(path)
+def verify_zip(zip_path: Path) -> VerifyResult:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        extract_dir = Path(tmp_dir) / "extracted"
+        extract_dir.mkdir(parents=True, exist_ok=True)
 
-    if path.is_dir():
-        return verify_run_directory(path)
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            zf.extractall(extract_dir)
 
-    if path.is_file() and path.suffix.lower() == ".zip":
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
-            with ZipFile(path, "r") as archive:
-                archive.extractall(temp_path)
-            return verify_run_directory(temp_path)
+        entries = [p for p in extract_dir.iterdir()]
+        if len(entries) == 1 and entries[0].is_dir():
+            return verify_run_directory(entries[0])
 
-    raise ValueError("O caminho indicado deve ser uma pasta de evidência ou um ficheiro .zip")
+        return verify_run_directory(extract_dir)
+
+
+def verify_path(target: str | Path) -> VerifyResult:
+    target = Path(target)
+
+    if not target.exists():
+        return VerifyResult(False, 0, [f"Caminho não encontrado: {target}"])
+
+    if target.is_file() and target.suffix.lower() == ".zip":
+        return verify_zip(target)
+
+    if target.is_dir():
+        return verify_run_directory(target)
+
+    return VerifyResult(False, 0, [f"Formato não suportado: {target}"])

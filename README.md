@@ -1,6 +1,6 @@
 # Plataforma Modular de Captura e Preservação de Evidência Digital para OSINT
 
-Scaffold evolutivo do MVP em Python para captura de evidência web com preservação de integridade.
+Scaffold evolutivo do MVP em Python para captura de evidência web com preservação de integridade, assinatura do manifesto e verificação de autenticidade.
 
 ## O que este MVP já faz
 
@@ -16,9 +16,12 @@ Scaffold evolutivo do MVP em Python para captura de evidência web com preserva�
 - guarda um trace ZIP do browser
 - calcula hashes SHA-256 dos artefactos
 - gera um `manifest.json`
-- cria um `ZIP` com os artefactos e o manifesto
+- assina o manifesto em `manifest.sig`
+- gera um par de chaves Ed25519 e guarda a chave pública em `keys/public_key.pem`
+- cria um `ZIP` com os artefactos, manifesto, assinatura e chave pública
 - verifica a integridade do conjunto
-- inclui testes automáticos para hashing, verificação, artefactos HTTP/consola, HAR/trace, PDF e adulteração negativa de ZIP
+- verifica a assinatura do manifesto quando existir
+- inclui testes automáticos para hashing, verificação, artefactos HTTP/consola, HAR/trace, PDF, adulteração negativa de ZIP e assinatura do manifesto
 
 ## Estrutura
 
@@ -31,23 +34,24 @@ TemplateProjetoLEI_CM_2003851/
 │   ├── hashing.py
 │   ├── manifest.py
 │   ├── package.py
+│   ├── signature.py
 │   └── verify.py
 ├── tests/
 ├── output/
+├── keys/
 ├── requirements.txt
 └── README.md
 
 
-## Preparação do ambiente
 
+## Preparação do ambiente
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python -m playwright install chromium
 
 
-####  Exemplos de uso
-
+### Exemplos de uso
 
 ## Capturar uma página
 python src/main.py capture https://example.org
@@ -60,7 +64,8 @@ python src/main.py capture https://example.org --headed
 
 ## Verificar um pacote ZIP gerado
 python src/main.py verify output/example.org_20260321T001321Z/evidence_bundle.zip
-Verificar uma pasta extraída
+
+## Verificar uma pasta extraída
 python src/main.py verify output/example.org_20260321T001321Z
 
 
@@ -68,8 +73,9 @@ python src/main.py verify output/example.org_20260321T001321Z
 capture.py abre a URL, espera pelo carregamento da página e grava os artefactos.
 hashing.py calcula o SHA-256 de cada ficheiro relevante.
 manifest.py gera um manifesto JSON com metadados de captura e de cada artefacto.
+signature.py garante a existência do par de chaves, assina o manifesto e disponibiliza validação de assinatura.
 package.py cria um ZIP final do conjunto de evidência.
-verify.py valida se todos os ficheiros listados no manifesto continuam íntegros.
+verify.py valida se todos os ficheiros listados no manifesto continuam íntegros e, quando existir assinatura, valida também a autenticidade do manifesto.
 
 
 ## Artefactos atualmente gerados
@@ -82,10 +88,11 @@ artifacts/console_logs.json
 artifacts/network.har
 artifacts/trace.zip
 manifest.json
+manifest.sig
+keys/public_key.pem
 evidence_bundle.zip
 
-
-## Estrutura do manifesto
+### Estrutura do manifesto
 
 O manifest.json inclui agora:
 
@@ -104,26 +111,45 @@ media type
 nome do ficheiro
 
 
-## Critério de aceitação observável
+## Assinatura do manifesto
+
+O projeto usa assinatura digital Ed25519 para reforçar a autenticidade do manifest.json.
+
+Em cada captura:
+
+o manifesto é assinado e guardado em manifest.sig
+a chave pública é guardada em keys/public_key.pem
+a chave privada é usada localmente para assinar e não deve ser distribuída no pacote final de evidência
+
+Durante a verificação:
+
+se existir manifest.sig, a verificação valida a assinatura do manifesto
+se a assinatura não corresponder ao conteúdo atual do manifesto, a verificação falha
+se a chave pública estiver em falta, a verificação também falha
+Critério de aceitação observável
 
 Uma execução de captura é considerada bem-sucedida quando:
 
-existe uma pasta de execução com artifacts/, manifest.json e evidence_bundle.zip
+existe uma pasta de execução com artifacts/, manifest.json, manifest.sig, keys/public_key.pem e evidence_bundle.zip
 o manifest.json contém hashes SHA-256 e metadados dos artefactos gravados
+a assinatura do manifesto é validada com sucesso quando o conteúdo não foi alterado
 a verificação devolve sucesso para um conjunto não alterado
 a verificação devolve falha se um artefacto for alterado depois da captura
+a verificação devolve falha se o manifesto assinado for alterado
 
 
-## Limitações atuais do MVP
+### Limitações atuais do MVP
 apenas usa Chromium
-ainda não faz assinatura digital do manifesto
+a gestão de chaves ainda é local e simplificada
 ainda não implementa cadeia de custódia formal
 ainda não faz normalização avançada de URLs
+ainda não implementa rotação, proteção forte ou armazenamento seguro da chave privada
 
 
 ## Próximos incrementos naturais
-assinatura do manifesto
 cadeia de custódia mínima
+proteção segura da chave privada
+rotação e gestão de chaves
 recolha adicional de headers e eventos relevantes
 geração de relatório resumido em JSON/Markdown
 testes automáticos adicionais para cenários de erro
