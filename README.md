@@ -19,3 +19,13 @@ Gerar um pacote de evidência com screenshot, HTML, metadados, hashes e manifest
 - `docs/` documentação técnica e de projeto
 - `tests/` testes automatizados
 - `samples/` amostras e exemplos
+
+## Fluxo do MVP
+1. O utilizador abre uma página Web no browser.
+2. A browser extension obtém o URL ativo.
+3. O utilizador inicia a captura através da extensão.
+4. A extensão envia o pedido ao motor local via API HTTP.
+5. O motor local executa a captura com Playwright.
+6. São gerados artefactos, manifest, assinatura, cadeia de custódia e pacote ZIP.
+7. O caminho da execução e do ZIP é devolvido à extensão.
+8. A integridade pode ser verificada posteriormente.
