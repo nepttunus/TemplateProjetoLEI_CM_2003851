@@ -1,146 +1,184 @@
-Plataforma Modular de Captura e Preserva��o de Evid�ncia Digital para OSINT
+# Plataforma Modular de Captura e Preservação de Evidência Digital para OSINT
 
-Plataforma modular para captura e preserva��o de evid�ncia digital web em contexto OSINT.  
-A solu��o combina uma **browser extension** para intera��o com o utilizador com um **motor local de captura e preserva��o**, respons�vel pela recolha de artefactos, gera��o de metadados, hashing, manifest, assinatura, cadeia de cust�dia e empacotamento final.
+Plataforma modular para captura e preservação de evidência digital web em contexto OSINT.  
+A solução combina uma **browser extension** para interação com o utilizador com um **motor local de captura e preservação**, responsável pela recolha de artefactos, geração de metadados, hashing, manifest, assinatura, cadeia de custódia e empacotamento final.
 
-Vis�o geral
+## Visão geral
 
-O objetivo do projeto � permitir a recolha estruturada de evid�ncia digital a partir do browser, preservando contexto t�cnico e mecanismos b�sicos de integridade e verifica��o posterior.
+O objetivo do projeto é permitir a recolha estruturada de evidência digital a partir do browser, preservando contexto técnico e mecanismos básicos de integridade e verificação posterior.
 
-Arquitetura
+### Arquitetura
 
-```text
-[Browser]
-   |
-   v
-[Browser Extension]
-   |
-   v
-[Local API / Bridge]
-   |
-   v
-[Motor Local de Captura e Preserva��o]
-   |
-   +--> screenshot
-   +--> HTML
-   +--> PDF
-   +--> metadados
-   +--> manifest
-   +--> assinatura
-   +--> cadeia de cust�dia
-   |
-   v
-[Pacote ZIP / output]
-Funcionalidades principais
-* Captura iniciada diretamente a partir do browser 
-* Obten��o do URL ativo no separador corrente 
-* Gera��o de screenshot, HTML, PDF, HAR e trace 
-* Recolha de metadados t�cnicos da execu��o 
-* C�lculo de hashes e cria��o de manifest 
-* Assinatura do manifest 
-* Registo de cadeia de cust�dia 
-* Gera��o de relat�rios auxiliares 
-* Empacotamento final em ZIP 
-* Verifica��o posterior de integridade sobre pasta ou ZIP 
-Pr�-requisitos
-* Python 3.9 ou superior 
-* Ambiente virtual Python 
-* Depend�ncias em requirements.txt 
-* Playwright com Chromium instalado 
-* Google Chrome ou Microsoft Edge para a extens�o 
-Instala��o
+    [Browser]
+       |
+       v
+    [Browser Extension]
+       |
+       v
+    [Local API / Bridge]
+       |
+       v
+    [Motor Local de Captura e Preservação]
+       |
+       +--> screenshot
+       +--> HTML
+       +--> PDF
+       +--> metadados
+       +--> manifest
+       +--> assinatura
+       +--> cadeia de custódia
+       |
+       v
+    [Pacote ZIP / output]
+
+## Funcionalidades principais
+
+- Captura iniciada diretamente a partir do browser
+- Obtenção do URL ativo no separador corrente
+- Geração de screenshot, HTML, PDF, HAR e trace
+- Recolha de metadados técnicos da execução
+- Cálculo de hashes e criação de manifest
+- Assinatura do manifest
+- Registo de cadeia de custódia
+- Geração de relatórios auxiliares
+- Empacotamento final em ZIP
+- Verificação posterior de integridade sobre pasta ou ZIP
+
+## Pré-requisitos
+
+- Python 3.9 ou superior
+- Ambiente virtual Python
+- Dependências em `requirements.txt`
+- Playwright com Chromium instalado
+- Google Chrome ou Microsoft Edge para a extensão
+
+## Instalação
+
 Criar e ativar ambiente virtual:
-python -m venv .venv
-source .venv/bin/activate
-Instalar depend�ncias:
-pip install -r requirements.txt
-python -m playwright install chromium
-Arranque do motor local
-Executar a API local:
-uvicorn engine.api.app:app --host 127.0.0.1 --port 8000 --reload
-Verifica��o r�pida do servi�o:
-curl http://127.0.0.1:8000/health
-Carregamento da browser extension
-1. Abrir chrome://extensions/ ou edge://extensions/ 
-2. Ativar Developer mode 
-3. Selecionar Load unpacked 
-4. Escolher a pasta extension/ 
-Fluxo de utiliza��o
-1. Abrir uma p�gina Web no browser 
-2. Abrir a browser extension 
-3. Confirmar o URL ativo apresentado no popup 
-4. Clicar em Capturar evid�ncia 
-5. A extens�o envia o pedido ao motor local 
-6. O motor local executa a captura e gera os artefactos 
-7. O popup apresenta a pasta de execu��o e o caminho do ZIP final 
-Execu��o direta via CLI
-Captura simples:
-python -m engine.src.main capture https://example.com
-Captura com op��es adicionais:
-python -m engine.src.main capture https://example.com --output-dir output --timeout-ms 30000 --actor cli_user
-Verifica��o de integridade
-Verificar uma pasta de execu��o:
-python -m engine.src.main verify output/<nome_da_execucao>
-Verificar o ZIP final:
-python -m engine.src.main verify output/<nome_da_execucao>/evidence_bundle.zip
-Testes
-Executar a suite de testes:
-python -m pytest -q
-Estrutura do projeto
-.
-??? engine/
-?   ??? api/
-?   ?   ??? app.py
-?   ??? src/
-?       ??? capture.py
-?       ??? cli.py
-?       ??? custody.py
-?       ??? hashing.py
-?       ??? main.py
-?       ??? manifest.py
-?       ??? package.py
-?       ??? reporting.py
-?       ??? service.py
-?       ??? signature.py
-?       ??? verify.py
-??? extension/
-?   ??? manifest.json
-?   ??? popup.html
-?   ??? popup.js
-??? docs/
-??? tests/
-??? output/
-Exemplo de output
-Cada execu��o gera uma pasta estruturada semelhante a esta:
-output/example.com_YYYYMMDDTHHMMSSZ/
-??? artifacts/
-?   ??? capture_metadata.json
-?   ??? console_logs.json
-?   ??? http_metadata.json
-?   ??? network.har
-?   ??? page.html
-?   ??? page.pdf
-?   ??? screenshot.png
-?   ??? trace.zip
-??? chain_of_custody.json
-??? evidence_bundle.zip
-??? keys/
-?   ??? public_key.pem
-??? manifest.json
-??? manifest.sig
-??? report.json
-??? report.md
-Estado atual
-O projeto corresponde a um MVP funcional com:
-* browser extension 
-* API local 
-* motor local de captura e preserva��o 
-* gera��o real de artefactos 
-* verifica��o de integridade 
-Limita��es atuais
-* sem multiutilizador 
-* sem backend remoto 
-* sem timestamping qualificado externo 
-* sem gest�o distribu�da de casos 
-* cadeia de cust�dia simplificada face a cen�rios forenses formais 
 
+    python -m venv .venv
+    source .venv/bin/activate
+
+Instalar dependências:
+
+    pip install -r requirements.txt
+    python -m playwright install chromium
+
+## Arranque do motor local
+
+Executar a API local:
+
+    uvicorn engine.api.app:app --host 127.0.0.1 --port 8000 --reload
+
+Verificação rápida do serviço:
+
+    curl http://127.0.0.1:8000/health
+
+## Carregamento da browser extension
+
+1. Abrir `chrome://extensions/` ou `edge://extensions/`
+2. Ativar **Developer mode**
+3. Selecionar **Load unpacked**
+4. Escolher a pasta `extension/`
+
+## Fluxo de utilização
+
+1. Abrir uma página Web no browser
+2. Abrir a browser extension
+3. Confirmar o URL ativo apresentado no popup
+4. Clicar em **Capturar evidência**
+5. A extensão envia o pedido ao motor local
+6. O motor local executa a captura e gera os artefactos
+7. O popup apresenta a pasta de execução e o caminho do ZIP final
+
+## Execução direta via CLI
+
+Captura simples:
+
+    python -m engine.src.main capture https://example.com
+
+Captura com opções adicionais:
+
+    python -m engine.src.main capture https://example.com --output-dir output --timeout-ms 30000 --actor cli_user
+
+## Verificação de integridade
+
+Verificar uma pasta de execução:
+
+    python -m engine.src.main verify output/<nome_da_execucao>
+
+Verificar o ZIP final:
+
+    python -m engine.src.main verify output/<nome_da_execucao>/evidence_bundle.zip
+
+## Testes
+
+Executar a suite de testes:
+
+    python -m pytest -q
+
+## Estrutura do projeto
+
+    .
+    ├── engine/
+    │   ├── api/
+    │   │   └── app.py
+    │   └── src/
+    │       ├── capture.py
+    │       ├── cli.py
+    │       ├── custody.py
+    │       ├── hashing.py
+    │       ├── main.py
+    │       ├── manifest.py
+    │       ├── package.py
+    │       ├── reporting.py
+    │       ├── service.py
+    │       ├── signature.py
+    │       └── verify.py
+    ├── extension/
+    │   ├── manifest.json
+    │   ├── popup.html
+    │   └── popup.js
+    ├── docs/
+    ├── tests/
+    └── output/
+
+## Exemplo de output
+
+Cada execução gera uma pasta estruturada semelhante a esta:
+
+    output/example.com_YYYYMMDDTHHMMSSZ/
+    ├── artifacts/
+    │   ├── capture_metadata.json
+    │   ├── console_logs.json
+    │   ├── http_metadata.json
+    │   ├── network.har
+    │   ├── page.html
+    │   ├── page.pdf
+    │   ├── screenshot.png
+    │   └── trace.zip
+    ├── chain_of_custody.json
+    ├── evidence_bundle.zip
+    ├── keys/
+    │   └── public_key.pem
+    ├── manifest.json
+    ├── manifest.sig
+    ├── report.json
+    └── report.md
+
+## Estado atual
+
+O projeto corresponde a um **MVP funcional** com:
+- browser extension
+- API local
+- motor local de captura e preservação
+- geração real de artefactos
+- verificação de integridade
+
+## Limitações atuais
+
+- sem multiutilizador
+- sem backend remoto
+- sem timestamping qualificado externo
+- sem gestão distribuída de casos
+- cadeia de custódia simplificada face a cenários forenses formais
