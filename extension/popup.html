@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSINT Evidence Capture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      min-width: 340px;
+      padding: 12px;
+    }
+
+    h1 {
+      font-size: 16px;
+      margin: 0 0 12px 0;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .box {
+      font-size: 12px;
+      background: #f3f3f3;
+      border: 1px solid #ddd;
+      padding: 8px;
+      border-radius: 6px;
+      word-break: break-all;
+      margin-bottom: 12px;
+      min-height: 36px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .status {
+      font-size: 12px;
+      min-height: 18px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>OSINT Evidence Capture</h1>
+
+  <div class="label">URL ativa</div>
+  <div id="currentUrl" class="box">A carregar...</div>
+
+  <button id="captureBtn">Capturar evidência</button>
+
+  <div id="status" class="status"></div>
+
+  <div class="label">Pasta da execução</div>
+  <div id="runDir" class="box">Ainda sem captura.</div>
+
+  <div class="label">ZIP gerado</div>
+  <div id="zipPath" class="box">Ainda sem captura.</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

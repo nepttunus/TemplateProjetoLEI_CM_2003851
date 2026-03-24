@@ -3,3 +3,6 @@ playwright
 pytest
 
 cryptography
+
+fastapi
+uvicorn

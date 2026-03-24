@@ -7,8 +7,8 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.hashing import sha256_file
-from src.signature import verify_manifest_signature
+from .hashing import sha256_file
+from .signature import verify_manifest_signature
 
 
 @dataclass

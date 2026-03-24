@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 try:
-    from src.hashing import sha256_file
+    from .hashing import sha256_file
 except ModuleNotFoundError:
     from hashing import sha256_file
 
