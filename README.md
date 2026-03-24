@@ -1,6 +1,6 @@
-## Pré-requisitos
+##### Pré-requisitos
 
-Para executar o projeto são necessários os seguintes componentes:
+### Para executar o projeto são necessários os seguintes componentes:
 
 - Python 3.9 ou superior
 - Ambiente virtual Python
@@ -10,7 +10,7 @@ Para executar o projeto são necessários os seguintes componentes:
 
 ##### Instalação
 
-###Criar e ativar ambiente virtual:
+### Criar e ativar ambiente virtual:
 
 python -m venv .venv
 #source .venv/bin/activate
