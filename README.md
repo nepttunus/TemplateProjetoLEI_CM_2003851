@@ -8,7 +8,7 @@
 - Playwright com o browser Chromium instalado
 - Google Chrome ou Microsoft Edge para carregar a browser extension
 
-##### Instalação
+### Instalação
 
 ### Criar e ativar ambiente virtual:
 
