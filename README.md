@@ -1,81 +1,146 @@
-### Pr√©-requisitos
+Plataforma Modular de Captura e Preservação de Evidência Digital para OSINT
 
-### Para executar o projeto s√£o necess√°rios os seguintes componentes:
+Plataforma modular para captura e preservação de evidência digital web em contexto OSINT.  
+A solução combina uma **browser extension** para interação com o utilizador com um **motor local de captura e preservação**, responsável pela recolha de artefactos, geração de metadados, hashing, manifest, assinatura, cadeia de custódia e empacotamento final.
 
-- Python 3.9 ou superior
-- Ambiente virtual Python
-- Depend√™ncias listadas em `requirements.txt`
-- Playwright com o browser Chromium instalado
-- Google Chrome ou Microsoft Edge para carregar a browser extension
+Visão geral
 
-### Instala√ß√£o
+O objetivo do projeto é permitir a recolha estruturada de evidência digital a partir do browser, preservando contexto técnico e mecanismos básicos de integridade e verificação posterior.
 
-### Criar e ativar ambiente virtual:
+Arquitetura
 
+```text
+[Browser]
+   |
+   v
+[Browser Extension]
+   |
+   v
+[Local API / Bridge]
+   |
+   v
+[Motor Local de Captura e Preservação]
+   |
+   +--> screenshot
+   +--> HTML
+   +--> PDF
+   +--> metadados
+   +--> manifest
+   +--> assinatura
+   +--> cadeia de custódia
+   |
+   v
+[Pacote ZIP / output]
+Funcionalidades principais
+* Captura iniciada diretamente a partir do browser 
+* Obtenção do URL ativo no separador corrente 
+* Geração de screenshot, HTML, PDF, HAR e trace 
+* Recolha de metadados técnicos da execução 
+* Cálculo de hashes e criação de manifest 
+* Assinatura do manifest 
+* Registo de cadeia de custódia 
+* Geração de relatórios auxiliares 
+* Empacotamento final em ZIP 
+* Verificação posterior de integridade sobre pasta ou ZIP 
+Pré-requisitos
+* Python 3.9 ou superior 
+* Ambiente virtual Python 
+* Dependências em requirements.txt 
+* Playwright com Chromium instalado 
+* Google Chrome ou Microsoft Edge para a extensão 
+Instalação
+Criar e ativar ambiente virtual:
 python -m venv .venv
-#source .venv/bin/activate
-
-## Instalar depend√™ncias:
-
+source .venv/bin/activate
+Instalar dependências:
 pip install -r requirements.txt
 python -m playwright install chromium
-
-#### Arranque do motor local
-
-## O motor local √© exposto atrav√©s de uma API HTTP local. Para arrancar a API:
-
+Arranque do motor local
+Executar a API local:
 uvicorn engine.api.app:app --host 127.0.0.1 --port 8000 --reload
-
-## Valida√ß√£o r√°pida do servi√ßo:
-
+Verificação rápida do serviço:
 curl http://127.0.0.1:8000/health
-
-## Carregamento da browser extension
-
-1. Abrir chrome://extensions/ ou edge://extensions/
-2. Ativar Developer mode
-3. Selecionar Load unpacked
-4. Escolher a pasta extension/
-5. Fluxo de utiliza√ß√£o
-6. Abrir uma p√°gina Web no browser
-7. Abrir a browser extension
-8. Confirmar o URL ativo apresentado no popup
-9. Clicar em Capturar evid√™ncia
-10. A extens√£o envia o pedido ao motor local
-11. O motor local gera a pasta de execu√ß√£o e o ficheiro ZIP
-12. O popup apresenta o caminho da execu√ß√£o e do pacote final
-
-
-##### Execu√ß√£o direta via CLI
-
-## A captura tamb√©m pode ser executada diretamente por linha de comandos:
-
+Carregamento da browser extension
+1. Abrir chrome://extensions/ ou edge://extensions/ 
+2. Ativar Developer mode 
+3. Selecionar Load unpacked 
+4. Escolher a pasta extension/ 
+Fluxo de utilização
+1. Abrir uma página Web no browser 
+2. Abrir a browser extension 
+3. Confirmar o URL ativo apresentado no popup 
+4. Clicar em Capturar evidência 
+5. A extensão envia o pedido ao motor local 
+6. O motor local executa a captura e gera os artefactos 
+7. O popup apresenta a pasta de execução e o caminho do ZIP final 
+Execução direta via CLI
+Captura simples:
 python -m engine.src.main capture https://example.com
-
-## Exemplo com op√ß√µes adicionais:
-
+Captura com opções adicionais:
 python -m engine.src.main capture https://example.com --output-dir output --timeout-ms 30000 --actor cli_user
-
-##### Verifica√ß√£o de integridade
-
-## Verificar uma pasta de execu√ß√£o:
-
+Verificação de integridade
+Verificar uma pasta de execução:
 python -m engine.src.main verify output/<nome_da_execucao>
-
-## Verificar o ZIP final:
-
+Verificar o ZIP final:
 python -m engine.src.main verify output/<nome_da_execucao>/evidence_bundle.zip
 Testes
-
-## Executar a suite de testes:
-
+Executar a suite de testes:
 python -m pytest -q
+Estrutura do projeto
+.
+??? engine/
+?   ??? api/
+?   ?   ??? app.py
+?   ??? src/
+?       ??? capture.py
+?       ??? cli.py
+?       ??? custody.py
+?       ??? hashing.py
+?       ??? main.py
+?       ??? manifest.py
+?       ??? package.py
+?       ??? reporting.py
+?       ??? service.py
+?       ??? signature.py
+?       ??? verify.py
+??? extension/
+?   ??? manifest.json
+?   ??? popup.html
+?   ??? popup.js
+??? docs/
+??? tests/
+??? output/
+Exemplo de output
+Cada execução gera uma pasta estruturada semelhante a esta:
+output/example.com_YYYYMMDDTHHMMSSZ/
+??? artifacts/
+?   ??? capture_metadata.json
+?   ??? console_logs.json
+?   ??? http_metadata.json
+?   ??? network.har
+?   ??? page.html
+?   ??? page.pdf
+?   ??? screenshot.png
+?   ??? trace.zip
+??? chain_of_custody.json
+??? evidence_bundle.zip
+??? keys/
+?   ??? public_key.pem
+??? manifest.json
+??? manifest.sig
+??? report.json
+??? report.md
+Estado atual
+O projeto corresponde a um MVP funcional com:
+* browser extension 
+* API local 
+* motor local de captura e preservação 
+* geração real de artefactos 
+* verificação de integridade 
+Limitações atuais
+* sem multiutilizador 
+* sem backend remoto 
+* sem timestamping qualificado externo 
+* sem gestão distribuída de casos 
+* cadeia de custódia simplificada face a cenários forenses formais 
 
-##### Estrutura principal do projeto
-
-- extension/ browser extension
-- engine/api/ API local
-- engine/src/ motor de captura e preserva√ß√£o
-- docs/ documenta√ß√£o de arquitetura e relat√≥rio
-- tests/ testes automatizados
-- output/ execu√ß√µes geradas
