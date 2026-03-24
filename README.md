@@ -1,4 +1,4 @@
-##### Pré-requisitos
+### Pré-requisitos
 
 ### Para executar o projeto são necessários os seguintes componentes:
 
