@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from shutil import copy2
 
 from .capture import capture_url
 from .custody import write_chain_of_custody
@@ -24,8 +25,15 @@ def run_capture_job(
         headless=headless,
     )
 
+    # A chave privada fica fora da pasta de evidência.
+    # O ZIP preserva apenas a chave pública necessária à verificação.
     keys_dir = result.run_dir / "keys"
-    private_key_path, public_key_path = ensure_keypair(keys_dir)
+    private_keys_dir = Path(output_dir) / "_private_keys" / result.run_dir.name
+    private_key_path, generated_public_key_path = ensure_keypair(private_keys_dir)
+
+    keys_dir.mkdir(parents=True, exist_ok=True)
+    public_key_path = keys_dir / "public_key.pem"
+    copy2(generated_public_key_path, public_key_path)
 
     custody_path = write_chain_of_custody(
         result.run_dir,
@@ -61,7 +69,10 @@ def run_capture_job(
         result.run_dir / "manifest.sig",
     )
 
-    zip_path = create_zip_archive(result.run_dir)
+    zip_path = create_zip_archive(
+        result.run_dir,
+        exclude_names={"private_key.pem", "_private_keys"},
+    )
 
     payload = {
         "status": "ok",
