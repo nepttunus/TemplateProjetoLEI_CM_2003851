@@ -183,7 +183,7 @@ O projeto corresponde a um **MVP funcional** com:
 - sem gestão distribuída de casos
 - cadeia de custódia simplificada face a cenários forenses formais
 
-## ## Atualização final de validação
+## Atualização final de validação
 
 Na sequência do feedback do orientador, o projeto foi atualizado para melhorar o tratamento da chave privada.
 
