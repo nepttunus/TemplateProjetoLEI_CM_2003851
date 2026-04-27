@@ -182,3 +182,33 @@ O projeto corresponde a um **MVP funcional** com:
 - sem timestamping qualificado externo
 - sem gestão distribuída de casos
 - cadeia de custódia simplificada face a cenários forenses formais
+
+## Final validation update
+
+Following supervisor feedback, the project was updated to improve private key handling.
+
+The private key is now kept outside the evidence package and is not included in the generated ZIP bundle. The ZIP contains only the public key required for later verification. This improves the integrity and authenticity model because possession of the evidence package no longer includes the private material used to sign the manifest.
+
+The automated test suite was also extended with a packaging test that validates that `private_key.pem` is excluded from the evidence ZIP while `public_key.pem` remains available for verification.
+
+Final validation result:
+
+```text
+15 passed
+:q
+:q
+:w
+eof
+
+## Final validation update
+
+Following supervisor feedback, the project was updated to improve private key handling.
+
+The private key is now kept outside the evidence package and is not included in the generated ZIP bundle. The ZIP contains only the public key required for later verification. This improves the integrity and authenticity model because possession of the evidence package no longer includes the private material used to sign the manifest.
+
+The automated test suite was also extended with a packaging test that validates that `private_key.pem` is excluded from the evidence ZIP while `public_key.pem` remains available for verification.
+
+Final validation result:
+
+```text
+15 passed
