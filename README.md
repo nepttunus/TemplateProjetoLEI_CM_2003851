@@ -183,32 +183,14 @@ O projeto corresponde a um **MVP funcional** com:
 - sem gestão distribuída de casos
 - cadeia de custódia simplificada face a cenários forenses formais
 
-## Final validation update
+## ## Atualização final de validação
 
-Following supervisor feedback, the project was updated to improve private key handling.
+Na sequência do feedback do orientador, o projeto foi atualizado para melhorar o tratamento da chave privada.
 
-The private key is now kept outside the evidence package and is not included in the generated ZIP bundle. The ZIP contains only the public key required for later verification. This improves the integrity and authenticity model because possession of the evidence package no longer includes the private material used to sign the manifest.
+A chave privada passou a ser mantida fora do pacote de evidência e deixou de ser incluída no ficheiro ZIP gerado. O pacote ZIP contém apenas a chave pública necessária para verificação posterior. Esta alteração melhora o modelo de integridade e autenticidade, porque a posse do pacote de evidência deixa de incluir o material privado utilizado para assinar o manifesto.
 
-The automated test suite was also extended with a packaging test that validates that `private_key.pem` is excluded from the evidence ZIP while `public_key.pem` remains available for verification.
+A suite de testes automáticos foi também reforçada com um teste de empacotamento que valida que o ficheiro `private_key.pem` é excluído do ZIP de evidência, enquanto o ficheiro `public_key.pem` permanece disponível para verificação.
 
-Final validation result:
+Resultado final da validação:
 
-```text
-15 passed
-:q
-:q
-:w
-eof
-
-## Final validation update
-
-Following supervisor feedback, the project was updated to improve private key handling.
-
-The private key is now kept outside the evidence package and is not included in the generated ZIP bundle. The ZIP contains only the public key required for later verification. This improves the integrity and authenticity model because possession of the evidence package no longer includes the private material used to sign the manifest.
-
-The automated test suite was also extended with a packaging test that validates that `private_key.pem` is excluded from the evidence ZIP while `public_key.pem` remains available for verification.
-
-Final validation result:
-
-```text
 15 passed
